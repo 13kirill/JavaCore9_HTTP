@@ -30,17 +30,18 @@ public class Nasa {
         this.title = title;
         this.url = url;
     }
-        @Override
-        public String toString () {
-            return "Nasa" +
-                    "\n  copyright=" + copyright +
-                    "\n  date=" + date +
-                    "\n  explanation=" + explanation +
-                    "\n  hdurl=" + hdurl +
-                    "\n  media_type=" + media_type +
-                    "\n  service_version=" + service_version +
-                    "\n  title=" + title +
-                    "\n  url=" + url;
+
+    @Override
+    public String toString() {
+        return "Nasa" +
+                "\n  copyright=" + copyright +
+                "\n  date=" + date +
+                "\n  explanation=" + explanation +
+                "\n  hdurl=" + hdurl +
+                "\n  media_type=" + media_type +
+                "\n  service_version=" + service_version +
+                "\n  title=" + title +
+                "\n  url=" + url;
 
     }
 }
