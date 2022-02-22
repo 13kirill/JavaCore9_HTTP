@@ -1,6 +1,8 @@
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -10,10 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.BufferedInputStream;
-import java.io.Closeable;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -34,11 +33,10 @@ public class Main {
             .build();
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
-        getPost();
+        // getPost();
         nasaFromJson();
-        getFile("https://apod.nasa.gov/apod/image/2202/Chamaeleon_RobertEder1024.jpg",
-                "Chamaeleon_RobertEder1024.jpg");
     }
+
     public static void getPost() throws IOException {
 
         //создание объекта запроса с произвольными заголовками
@@ -61,7 +59,7 @@ public class Main {
                 }
         );
 
-                posts.stream().filter(value -> value.getUpvotes() != 0 && value.getUpvotes() > 0)
+        posts.stream().filter(value -> value.getUpvotes() != 0 && value.getUpvotes() > 0)
                 .forEach(System.out::println);
 
 
@@ -69,7 +67,7 @@ public class Main {
         httpClient.close();
     }
 
-    public static void nasaFromJson() throws IOException {
+    public static Nasa nasaFromJson() throws IOException {
 
         HttpGet request = new HttpGet("https://api.nasa.gov/planetary/apod?api_key=kPedpeLjmVsmSuMTGCb0zQfvYfcK7ppBuExfjOJr");
         //request.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
@@ -78,6 +76,7 @@ public class Main {
         CloseableHttpResponse response = httpClient.execute(request);
 
         //вывод полученных заголовков
+        System.out.println("Headers--------------------");
         Arrays.stream(response.getAllHeaders()).forEach(System.out::println);
 
         Nasa nasa = mapper.readValue(
@@ -85,26 +84,56 @@ public class Main {
                 new TypeReference<>() {
                 }
         );
-
-        System.out.println(nasa);
-
+        //System.out.println(nasa);
         response.close();
+
+        String url = nasa.getUrl();
+        HttpGet request2 = new HttpGet(url);
+        CloseableHttpResponse response2 = httpClient.execute(request2);
+        HttpEntity entity = response.getEntity();
+
+        InputStream is = entity.getContent();
+        String [] filePath = nasa.getUrl().split("/");
+        FileOutputStream fos = new FileOutputStream(new File(filePath[6]));
+        int inByte;
+        while((inByte = is.read()) != -1) {
+            fos.write(inByte);
+        }
+        is.close();
+        fos.close();
+
+        response2.close();
         httpClient.close();
-        //return nasa;
+        return nasa;
     }
 
-    public static void getFile(String urlStr, String file) throws IOException{
+//    public static Nasa getFileName() throws IOException {
+//        String url = nasaFromJson().getUrl();
+//        HttpGet request2 = new HttpGet(url);
+//        CloseableHttpResponse response2 = httpClient.execute(request2);
+//        response2.close();
+//        System.out.println("Headers--------------------");
+//        Arrays.stream(response2.getAllHeaders()).forEach(System.out::println);
+//        Nasa nasa = mapper.readValue(
+//                response2.getEntity().getContent(),
+//                new TypeReference<>() {
+//                }
+//        );
+//        httpClient.close();
+//        return nasa;
+//    }
 
-            URL url = new URL(urlStr);
-            BufferedInputStream bis = new BufferedInputStream(url.openStream());
-            FileOutputStream fis = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int count=0;
-            while((count = bis.read(buffer,0,1024)) != -1)
-            {
-                fis.write(buffer, 0, count);
-            }
-            fis.close();
-            bis.close();
-    }
+//    public static void getFile(String urlStr, String file) throws IOException {
+//
+//        URL url = new URL(urlStr);
+//        BufferedInputStream bis = new BufferedInputStream(url.openStream());
+//        FileOutputStream fis = new FileOutputStream(file);
+//        byte[] buffer = new byte[1024];
+//        int count = 0;
+//        while ((count = bis.read(buffer, 0, 1024)) != -1) {
+//            fis.write(buffer, 0, count);
+//        }
+//        fis.close();
+//        bis.close();
+//    }
 }

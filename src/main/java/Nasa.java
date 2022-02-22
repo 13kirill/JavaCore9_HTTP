@@ -44,4 +44,8 @@ public class Nasa {
                 "\n  url=" + url;
 
     }
+
+    public String getUrl() {
+        return url;
+    }
 }
