@@ -33,7 +33,7 @@ public class Main {
             .build();
 
     public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
-        // getPost();
+        //getPost();
         nasaFromJson();
     }
 
@@ -84,7 +84,7 @@ public class Main {
                 new TypeReference<>() {
                 }
         );
-        //System.out.println(nasa);
+        System.out.println(nasa);
         response.close();
 
         String url = nasa.getUrl();
@@ -92,16 +92,25 @@ public class Main {
         CloseableHttpResponse response2 = httpClient.execute(request2);
         HttpEntity entity = response.getEntity();
 
-        InputStream is = entity.getContent();
-        String [] filePath = nasa.getUrl().split("/");
-        FileOutputStream fos = new FileOutputStream(new File(filePath[6]));
-        int inByte;
-        while((inByte = is.read()) != -1) {
-            fos.write(inByte);
-        }
-        is.close();
-        fos.close();
 
+        try {
+
+            URL uri = new URL(url);
+            //InputStream is = entity.getContent();
+            InputStream is = uri.openStream();
+            String[] filePath = nasa.getUrl().split("/");
+            FileOutputStream fos = new FileOutputStream(new File(filePath[6]));
+            int inByte;
+            while ((inByte = is.read()) != -1) {
+                fos.write(inByte);
+                fos.flush();
+            }
+            is.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
         response2.close();
         httpClient.close();
         return nasa;
