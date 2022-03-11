@@ -90,13 +90,11 @@ public class Main {
         String url = nasa.getUrl();
         HttpGet request2 = new HttpGet(url);
         CloseableHttpResponse response2 = httpClient.execute(request2);
-        HttpEntity entity = response.getEntity();
-
 
         try {
 
             URL uri = new URL(url);
-            //InputStream is = entity.getContent();
+
             InputStream is = uri.openStream();
             String[] filePath = nasa.getUrl().split("/");
             FileOutputStream fos = new FileOutputStream(new File(filePath[6]));
